@@ -51,6 +51,11 @@ class NameForm(Form):
     submit = SubmitField('Submit')
 
 
+class DeleteForm(Form):
+    name = StringField('Enter name to remove', validators=[Required()])
+    submit = SubmitField('Submit')
+
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -79,6 +84,23 @@ def index():
     return render_template('index.html',
                            form=form, name=session.get('name'),
                            known=session.get('known', False))
+
+
+@app.route('/delete', methods=['GET', 'POST', 'DELETE'])
+def delete_user():
+    form = DeleteForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(
+                    username=form.name.data).first()
+        session['name'] = form.name.data
+        if user is not None:
+            db.session.delete(user)
+            flash('User successfully deleted!')
+        else:
+            flash('That user doesn\'t exist!')
+        return redirect(url_for('delete_user'))
+    return render_template('delete.html',
+                            form=form, name=session.get('name'))
 
 
 @app.route('/user/<name>')
