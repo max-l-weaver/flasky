@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
@@ -23,6 +24,8 @@ app.config['SECRET_KEY'] = 'H@rd2GU355%t!ng!'
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
 class Role(db.Model):
     __tablename__ = 'roles'
